@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import font as tkFont
-from back import insert_team, insert_worker, insert_product, insert_issue, team_names, product_names
+from back import insert_team, insert_worker, insert_product, insert_issue, team_names, product_names, relate_all
 
 
 class Ticket_Management_System(Tk):
@@ -18,7 +18,7 @@ class Ticket_Management_System(Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (Start_page, GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input):
+        for F in (Start_page, GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input, issues_view):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -37,7 +37,7 @@ class Start_page(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
 
-        label = Label(self, text="This is the start page",
+        label = Label(self, text="{This is the start page}",
                       font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
@@ -49,11 +49,14 @@ class Start_page(Frame):
             self, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
         button_issue = Button(
             self, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
+        button_table = Button(
+            self, text="View Tickets", command=lambda: controller.show_frame("issues_view"))
 
         button_team.pack()
         button_worker.pack()
         button_product.pack()
         button_issue.pack()
+        button_table.pack()
 
 
 class GUI_team_input(Frame):
@@ -110,7 +113,8 @@ class GUI_worker_input(Frame):
         self.team_label.grid(row=self.current_row, column=0)
         self.variable = StringVar(self)
         self.variable.set('Choose a team')
-        self.team_options = OptionMenu(self, self.variable, *self.get_options())
+        self.team_options = OptionMenu(
+            self, self.variable, *self.get_options())
         self.team_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
@@ -130,7 +134,6 @@ class GUI_worker_input(Frame):
 
     def get_options(self):
         return team_names()
-
 
     def send_query(self):
         worker_name = self.worker_text.get()
@@ -186,7 +189,8 @@ class GUI_issue_input(Frame):
         self.issue_label.grid(row=self.current_row, column=0)
         self.issue_options = ['Suggestion', 'Complaint', 'Request']
         self.issue_text = StringVar()
-        self.issue_options = OptionMenu(self, self.issue_text, *self.issue_options)
+        self.issue_options = OptionMenu(
+            self, self.issue_text, *self.issue_options)
         self.issue_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
@@ -195,7 +199,8 @@ class GUI_issue_input(Frame):
         self.team_label.grid(row=self.current_row, column=0)
         self.team_text = StringVar(self)
         self.team_text.set('Choose a team')
-        self.team_options = OptionMenu(self, self.team_text, *self.get_team_options())
+        self.team_options = OptionMenu(
+            self, self.team_text, *self.get_team_options())
         self.team_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
@@ -204,7 +209,8 @@ class GUI_issue_input(Frame):
         self.product_label.grid(row=self.current_row, column=0)
         self.product_text = StringVar(self)
         self.product_text.set('Choose a product')
-        self.product_options = OptionMenu(self, self.product_text, *self.get_product_options())
+        self.product_options = OptionMenu(
+            self, self.product_text, *self.get_product_options())
         self.product_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
@@ -222,7 +228,8 @@ class GUI_issue_input(Frame):
         self.priority_text = StringVar(self)
         self.priority_option = [1, 2, 3]
         self.priority_text.set('Select priority')
-        self.priority_options = OptionMenu(self, self.priority_text, *self.priority_option)
+        self.priority_options = OptionMenu(
+            self, self.priority_text, *self.priority_option)
         self.priority_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
@@ -232,7 +239,8 @@ class GUI_issue_input(Frame):
         self.severity_text = StringVar(self)
         self.severity_option = [1, 2, 3]
         self.severity_text.set('Select severity')
-        self.severity_options = OptionMenu(self, self.severity_text, *self.severity_option)
+        self.severity_options = OptionMenu(
+            self, self.severity_text, *self.severity_option)
         self.severity_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
@@ -263,8 +271,55 @@ class GUI_issue_input(Frame):
         issue_desc = self.desc_text.get()
         issue_priority = self.priority_text.get()
         issue_severity = self.severity_text.get()
-        response = insert_issue(team, product, issue_type, issue_desc, issue_priority, issue_severity)
+        response = insert_issue(team, product, issue_type,
+                                issue_desc, issue_priority, issue_severity)
         self.querystatus.configure(text=response)
+
+
+class issues_view(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        # self.controller.geometry('250x200+100+200')
+        self.product_name = Label(
+            self, text='Product Name', width=20, wraplength=50)
+        self.product_name.grid(row=0, column=0)
+        self.issue_type = Label(self, text='Issue Type',
+                                width=20, wraplength=50)
+        self.issue_type.grid(row=0, column=1)
+        self.issue_description = Label(
+            self, text='Issue Description', width=50, wraplength=70)
+        self.issue_description.grid(row=0, column=2)
+        self.issue_priority = Label(
+            self, text='Issue Priority', width=8, wraplength=50)
+        self.issue_priority.grid(row=0, column=3)
+        self.issue_severity = Label(
+            self, text='Issue Severity', width=8, wraplength=70)
+        self.issue_severity.grid(row=0, column=4)
+        self.issue_impact = Label(
+            self, text='Issue Impact', width=8, wraplength=50)
+        self.issue_impact.grid(row=0, column=5)
+        self.worker_name = Label(
+            self, text='Worker Name', width=6, wraplength=50)
+        self.worker_name.grid(row=0, column=6)
+        self.team_name = Label(self, text="Team Name", width=7, wraplength=50)
+        self.team_name.grid(row=0, column=7)
+        self.populate()
+        button = Button(self, text='Go to start page',
+                        command=lambda: controller.show_frame("Start_page"))
+        button.grid(row=5, column=0)
+
+    def populate(self):
+        data = relate_all()
+        for index, dat in enumerate(data):
+            Label(self, text=dat[0]).grid(row=index + 1, column=0)
+            Label(self, text=dat[1]).grid(row=index + 1, column=1)
+            Label(self, text=dat[2]).grid(row=index + 1, column=2)
+            Label(self, text=dat[3]).grid(row=index + 1, column=3)
+            Label(self, text=dat[4]).grid(row=index + 1, column=4)
+            Label(self, text=dat[5]).grid(row=index + 1, column=5)
+            Label(self, text=dat[6]).grid(row=index + 1, column=6)
+            Label(self, text=dat[7]).grid(row=index + 1, column=7)
 
 
 def main():
