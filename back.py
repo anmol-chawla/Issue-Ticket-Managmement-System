@@ -142,11 +142,10 @@ def relate_all():
                               db='tickets',
                               charset='utf8mb4')
         cur = con.cursor()
-        cur.execute("SELECT product_name, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_name, team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id;")
+        cur.execute("SELECT product_name, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_name," +\
+                    " team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id;")
         data = cur.fetchall()
         con.close()
         return data
     except Exception as e:
         raise Exception(str(e))
-
-relate_all()
