@@ -18,45 +18,18 @@ class Ticket_Management_System(Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (Start_page, GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input, issues_view):
+        for F in (GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input, issues_view):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("Start_page")
+        self.show_frame("issues_view")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
-
-
-class Start_page(Frame):
-    def __init__(self, parent, controller):
-        Frame.__init__(self, parent)
-        self.controller = controller
-
-        label = Label(self, text="Issue Ticket Management",
-                      font=controller.title_font)
-        label.pack(side="top", fill="x", pady=10)
-
-        button_team = Button(self, text="Add Teams",
-                             command=lambda: controller.show_frame("GUI_team_input"))
-        button_worker = Button(
-            self, text="Add Workers", command=lambda: controller.show_frame("GUI_worker_input"))
-        button_product = Button(
-            self, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
-        button_issue = Button(
-            self, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
-        button_table = Button(
-            self, text="View Tickets", command=lambda: controller.show_frame("issues_view"))
-
-        button_team.pack()
-        button_worker.pack()
-        button_product.pack()
-        button_issue.pack()
-        button_table.pack()
 
 
 class GUI_team_input(Frame):
@@ -79,8 +52,8 @@ class GUI_team_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Go to start page',
-                        command=lambda: controller.show_frame("Start_page"))
+        button = Button(self, text='Back',
+                        command=lambda: controller.show_frame("issues_view"))
         button_save = Button(self, text='Insert team', command=self.send_query)
 
         button_save.grid(row=self.current_row, column=0)
@@ -123,8 +96,8 @@ class GUI_worker_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Go to start page',
-                        command=lambda: controller.show_frame("Start_page"))
+        button = Button(self, text='Back',
+                        command=lambda: controller.show_frame("issues_view"))
         button_save = Button(self, text='Insert worker',
                              command=self.send_query)
 
@@ -162,8 +135,8 @@ class GUI_product_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Go to start page',
-                        command=lambda: controller.show_frame("Start_page"))
+        button = Button(self, text='Back',
+                        command=lambda: controller.show_frame("issues_view"))
         button_save = Button(self, text='Insert product',
                              command=self.send_query)
 
@@ -249,8 +222,8 @@ class GUI_issue_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Go to start page',
-                        command=lambda: controller.show_frame("Start_page"))
+        button = Button(self, text='Back',
+                        command=lambda: controller.show_frame("issues_view"))
         button_save = Button(self, text='Insert issue',
                              command=self.send_query)
 
@@ -301,10 +274,10 @@ class issues_view(Frame):
 
         self.canvas.pack(side='left')
         self.frame_three = Frame(parent)
-        self.frame_three.grid(row=2, column=0)
+        self.frame_three.grid(row=0, column=0)
 
         self.product_name = Label(
-            self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
+        self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
         self.product_name.grid(row=0, column=0)
         self.issue_type = Label(self.list_frame, text='Issue Type',
                                 font='Helvetica 10 bold', width=20, wraplength=50)
@@ -328,9 +301,18 @@ class issues_view(Frame):
             self.list_frame, text="Team Name", font='Helvetica 10 bold', width=7, wraplength=50)
         self.team_name.grid(row=0, column=7)
         self.populate()
-        button = Button(self.frame_three, text='Go to start page',
-                        command=lambda: controller.show_frame("Start_page"))
-        button.grid(row=5, column=0)
+        button_team = Button(self.frame_one, text="Add Teams",
+                             command=lambda: controller.show_frame("GUI_team_input"))
+        button_worker = Button(
+            self.frame_one, text="Add Workers", command=lambda: controller.show_frame("GUI_worker_input"))
+        button_product = Button(
+            self.frame_one, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
+        button_issue = Button(
+            self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
+        button_team.grid(row=0, column=0, sticky='w')
+        button_worker.grid(row=0, column=1)
+        button_product.grid(row=0, column=2)
+        button_issue.grid(row=0, column=3)
 
     def populate(self):
         data = relate_all()
