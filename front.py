@@ -37,7 +37,7 @@ class Start_page(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
 
-        label = Label(self, text="{This is the start page}",
+        label = Label(self, text="Issue Ticket Management",
                       font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
@@ -280,46 +280,73 @@ class issues_view(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        # self.controller.geometry('250x200+100+200')
+        self.initUI(parent, controller)
+
+    def initUI(self, parent, controller):
+        self.frame_one = Frame(self, parent)
+        self.frame_one.grid(row=0, column=0)
+
+        self.frame_two = Frame(self, parent)
+        self.frame_two.grid(row=1, column=0)
+
+        self.canvas = Canvas(self.frame_two)
+        self.list_frame = Frame(self.canvas)
+        self.scrolllib = Scrollbar(
+            parent, orient='vertical', command=self.canvas.yview)
+        self.scrolllib.grid(row=0, column=1, sticky='nsew')
+        self.canvas['yscrollcommand'] = self.scrolllib.set
+
+        self.canvas.create_window((0, 0), window=self.list_frame, anchor='nw')
+        self.list_frame.bind('<Configure>', self.Auxscrollfunction)
+
+        self.canvas.pack(side='left')
+        self.frame_three = Frame(parent)
+        self.frame_three.grid(row=2, column=0)
+
         self.product_name = Label(
-            self, text='Product Name', width=20, wraplength=50)
+            self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
         self.product_name.grid(row=0, column=0)
-        self.issue_type = Label(self, text='Issue Type',
-                                width=20, wraplength=50)
+        self.issue_type = Label(self.list_frame, text='Issue Type',
+                                font='Helvetica 10 bold', width=20, wraplength=50)
         self.issue_type.grid(row=0, column=1)
         self.issue_description = Label(
-            self, text='Issue Description', width=50, wraplength=70)
+            self.list_frame, text='Issue Description', font='Helvetica 10 bold', width=50, wraplength=75)
         self.issue_description.grid(row=0, column=2)
         self.issue_priority = Label(
-            self, text='Issue Priority', width=8, wraplength=50)
+            self.list_frame, text='Issue Priority', font='Helvetica 10 bold', width=8, wraplength=50)
         self.issue_priority.grid(row=0, column=3)
         self.issue_severity = Label(
-            self, text='Issue Severity', width=8, wraplength=70)
+            self.list_frame, text='Issue Severity', font='Helvetica 10 bold', width=8, wraplength=70)
         self.issue_severity.grid(row=0, column=4)
         self.issue_impact = Label(
-            self, text='Issue Impact', width=8, wraplength=50)
+            self.list_frame, text='Issue Impact', font='Helvetica 10 bold', width=8, wraplength=50)
         self.issue_impact.grid(row=0, column=5)
         self.worker_name = Label(
-            self, text='Worker Name', width=6, wraplength=50)
+            self.list_frame, text='Worker Name', font='Helvetica 10 bold', width=6, wraplength=50)
         self.worker_name.grid(row=0, column=6)
-        self.team_name = Label(self, text="Team Name", width=7, wraplength=50)
+        self.team_name = Label(
+            self.list_frame, text="Team Name", font='Helvetica 10 bold', width=7, wraplength=50)
         self.team_name.grid(row=0, column=7)
         self.populate()
-        button = Button(self, text='Go to start page',
+        button = Button(self.frame_three, text='Go to start page',
                         command=lambda: controller.show_frame("Start_page"))
         button.grid(row=5, column=0)
 
     def populate(self):
         data = relate_all()
         for index, dat in enumerate(data):
-            Label(self, text=dat[0]).grid(row=index + 1, column=0)
-            Label(self, text=dat[1]).grid(row=index + 1, column=1)
-            Label(self, text=dat[2]).grid(row=index + 1, column=2)
-            Label(self, text=dat[3]).grid(row=index + 1, column=3)
-            Label(self, text=dat[4]).grid(row=index + 1, column=4)
-            Label(self, text=dat[5]).grid(row=index + 1, column=5)
-            Label(self, text=dat[6]).grid(row=index + 1, column=6)
-            Label(self, text=dat[7]).grid(row=index + 1, column=7)
+            Label(self.list_frame, text=dat[0]).grid(row=index + 1, column=0)
+            Label(self.list_frame, text=dat[1]).grid(row=index + 1, column=1)
+            Label(self.list_frame, text=dat[2]).grid(row=index + 1, column=2)
+            Label(self.list_frame, text=dat[3]).grid(row=index + 1, column=3)
+            Label(self.list_frame, text=dat[4]).grid(row=index + 1, column=4)
+            Label(self.list_frame, text=dat[5]).grid(row=index + 1, column=5)
+            Label(self.list_frame, text=dat[6]).grid(row=index + 1, column=6)
+            Label(self.list_frame, text=dat[7]).grid(row=index + 1, column=7)
+
+    def Auxscrollfunction(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox(
+            'all'), width=1080, height=150)
 
 
 def main():

@@ -38,7 +38,7 @@ def insert_worker(worker_name, team):
 
 
 def insert_product(product_name):
-     try:
+    try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4',
@@ -49,7 +49,7 @@ def insert_product(product_name):
         con.commit()
         con.close()
         return "Successfully added \'" + product_name + "\'"
-     except Exception as e:
+    except Exception as e:
         return str(e)
 
 
@@ -66,6 +66,7 @@ def get_impact(issue_priority, issue_severity):
             return 3
     else:
         return 3
+
 
 def insert_issue(team, product, issue_type, issue_desc, issue_priority, issue_severity):
     try:
@@ -115,6 +116,7 @@ def team_names():
     except Exception as e:
         raise Exception(str(e))
 
+
 def product_names():
     try:
         con = pymysql.connect(user='root',
@@ -136,13 +138,14 @@ def product_names():
     except Exception as e:
         raise Exception(str(e))
 
+
 def relate_all():
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4')
         cur = con.cursor()
-        cur.execute("SELECT product_name, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_name," +\
+        cur.execute("SELECT product_name, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_name," +
                     " team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id;")
         data = cur.fetchall()
         con.close()
