@@ -152,3 +152,23 @@ def relate_all():
         return data
     except Exception as e:
         raise Exception(str(e))
+
+
+def login_check(username, password):
+    try:
+        con = pymysql.connect(user='root',
+                              db='tickets',
+                              charset='utf8mb4',
+                              cursorclass=pymysql.cursors.DictCursor)
+        cur = con.cursor()
+        cur.execute('SELECT usrname, password from admin')
+        data = cur.fetchall()
+        users = {}
+        for dic in data:
+            users[dic['usrname']] = dic['password']
+        if users[username] == password:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False

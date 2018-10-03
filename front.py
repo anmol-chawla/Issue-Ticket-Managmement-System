@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import font as tkFont
-from back import insert_team, insert_worker, insert_product, insert_issue, team_names, product_names, relate_all
+from back import insert_team, insert_worker, insert_product, insert_issue, team_names, product_names, relate_all, login_check
 
 
 class Ticket_Management_System(Tk):
@@ -18,14 +18,14 @@ class Ticket_Management_System(Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input, issues_view):
+        for F in (GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input, issues_view, login_view):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("issues_view")
+        self.show_frame("login_view")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -329,6 +329,43 @@ class issues_view(Frame):
     def Auxscrollfunction(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox(
             'all'), width=1080, height=150)
+
+class login_view(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        self.current_row = 0
+
+        self.username_label = Label(self, text='Username: ')
+        self.username_label.grid(row=self.current_row, column=0)
+        self.username_text = StringVar()
+        self.username_entry = Entry(self, textvariable=self.username_text, width=60)
+        self.username_entry.grid(row=self.current_row, column=1, sticky='we')
+        self.current_row += 1
+
+        self.password_label = Label(self, text='Password: ')
+        self.password_label.grid(row=self.current_row, column=0)
+        self.password_text = StringVar()
+        self.password_entry = Entry(self, textvariable=self.password_text, width=60)
+        self.password_entry.grid(row=self.current_row, column=1, sticky='we')
+        self.current_row += 1
+
+        # Query status
+        self.querystatus = Label(self, text='')
+        self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
+        self.current_row += 1
+
+        button = Button(
+            self, text="Login", command=lambda: self.login())
+        button.grid(row=self.current_row, column=0)
+        self.current_row += 1
+
+    def login(self):
+        response = login_check(self.username_text.get(), self.password_text.get())
+        if response:
+            self.controller.show_frame('issues_view')
+        else:
+            self.querystatus.configure(text='Incorrect login')
 
 
 def main():
