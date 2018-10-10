@@ -16,6 +16,21 @@ def insert_team(team_name):
         return str(e)
 
 
+def remove_team(team_name):
+    try:
+        con = pymysql.connect(user='root',
+                              db='tickets',
+                              charset='utf8mb4',
+                              cursorclass=pymysql.cursors.DictCursor)
+        cur = con.cursor()
+        cur.execute("DELETE from team where team_name=\"" + team_name + "\"")
+        con.commit()
+        con.close()
+        return "Successfully removed \'" + team_name + "\'"
+    except Exception as e:
+        return str(e)
+
+
 def insert_worker(worker_name, team):
     try:
         con = pymysql.connect(user='root',
