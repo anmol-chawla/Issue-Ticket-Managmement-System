@@ -277,7 +277,7 @@ class issues_view(Frame):
         self.frame_three.grid(row=0, column=0)
 
         self.product_name = Label(
-        self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
+            self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
         self.product_name.grid(row=0, column=0)
         self.issue_type = Label(self.list_frame, text='Issue Type',
                                 font='Helvetica 10 bold', width=20, wraplength=50)
@@ -330,6 +330,7 @@ class issues_view(Frame):
         self.canvas.configure(scrollregion=self.canvas.bbox(
             'all'), width=1080, height=150)
 
+
 class login_view(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
@@ -339,14 +340,16 @@ class login_view(Frame):
         self.username_label = Label(self, text='Username: ')
         self.username_label.grid(row=self.current_row, column=0)
         self.username_text = StringVar()
-        self.username_entry = Entry(self, textvariable=self.username_text, width=60)
+        self.username_entry = Entry(
+            self, textvariable=self.username_text, width=60)
         self.username_entry.grid(row=self.current_row, column=1, sticky='we')
         self.current_row += 1
 
         self.password_label = Label(self, text='Password: ')
         self.password_label.grid(row=self.current_row, column=0)
         self.password_text = StringVar()
-        self.password_entry = Entry(self, textvariable=self.password_text, width=60)
+        self.password_entry = Entry(
+            self, textvariable=self.password_text, show='*', width=60)
         self.password_entry.grid(row=self.current_row, column=1, sticky='we')
         self.current_row += 1
 
@@ -361,7 +364,8 @@ class login_view(Frame):
         self.current_row += 1
 
     def login(self):
-        response = login_check(self.username_text.get(), self.password_text.get())
+        response = login_check(self.username_text.get(),
+                               self.password_text.get())
         if response:
             self.controller.show_frame('issues_view')
         else:
