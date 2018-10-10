@@ -6,19 +6,23 @@ from back import insert_team, remove_team, insert_worker, remove_worker, insert_
 
 
 class Ticket_Management_System(Tk):
-    def __init__(self, *args, **kwargs):
-        Tk.__init__(self, *args, **kwargs)
+    # Main class for the system
 
+    def __init__(self, *args, **kwargs):
+        # Function for intializing all the views
+
+        Tk.__init__(self, *args, **kwargs)
         self.title_font = tkFont.Font(
             family='Helvetica', size=18, weight="bold", slant="italic")
 
-        # stacking of multiple frames on top of each other
+        # Stacking of multiple frames on top of each other
         # the one visible will be raised on top
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
+        # All the classes whose view is to be shown
         self.classes = (login_view, issues_view, GUI_team_edit, GUI_team_input, GUI_team_remove, GUI_worker_edit,
                         GUI_worker_input, GUI_worker_remove, GUI_product_edit, GUI_product_input, GUI_product_remove, GUI_issue_input)
         self.frames = {}
@@ -29,19 +33,25 @@ class Ticket_Management_System(Tk):
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("login_view")
+        self.show_frame("login_view")  # First frame to be shown
 
     def show_frame(self, page_name):
+        # Function to raise the requested frame to the top
         frame = self.frames[page_name]
         frame.tkraise()
 
 
 class login_view(Frame):
+    # Login view class of the app
+
     def __init__(self, parent, controller):
+        # Function for initializing the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
+        self.current_row = 0  # Set the current row count of the view
+
+        # Username Field
         self.username_label = Label(self, text='Username: ')
         self.username_label.grid(row=self.current_row, column=0)
         self.username_text = StringVar()
@@ -50,6 +60,7 @@ class login_view(Frame):
         self.username_entry.grid(row=self.current_row, column=1, sticky='we')
         self.current_row += 1
 
+        # Password field
         self.password_label = Label(self, text='Password: ')
         self.password_label.grid(row=self.current_row, column=0)
         self.password_text = StringVar()
@@ -63,12 +74,14 @@ class login_view(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(
+        # Button for login action
+        self.button = Button(
             self, text="Login", command=lambda: self.login())
-        button.grid(row=self.current_row, column=0)
+        self.button.grid(row=self.current_row, column=0)
         self.current_row += 1
 
     def login(self):
+        # Function to pass on the username and password to the login function
         response = login_check(self.username_text.get(),
                                self.password_text.get())
         if response:
@@ -78,32 +91,50 @@ class login_view(Frame):
 
 
 class issues_view(Frame):
+    # Issues view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
         self.initUI(parent, controller)
 
     def initUI(self, parent, controller):
+        # Function to initialize the various frames
+
+        # Frame one declaration
         self.frame_one = Frame(self, parent)
         self.frame_one.grid(row=0, column=0)
 
+        # Frame two declaration
         self.frame_two = Frame(self, parent)
         self.frame_two.grid(row=1, column=0)
 
+        # Canvas decalaration
         self.canvas = Canvas(self.frame_two)
+
+        # List frame declaration
         self.list_frame = Frame(self.canvas)
+
+        # Scrollbar declaration
         self.scrolllib = Scrollbar(
             parent, orient='vertical', command=self.canvas.yview)
         self.scrolllib.grid(row=0, column=1, sticky='nsew')
         self.canvas['yscrollcommand'] = self.scrolllib.set
 
+        # Canvas window creation
         self.canvas.create_window((0, 0), window=self.list_frame, anchor='nw')
+
+        # Binding of the scrolling function to the frame
         self.list_frame.bind('<Configure>', self.Auxscrollfunction)
 
         self.canvas.pack(side='left')
+
+        # Frame three declaration
         self.frame_three = Frame(parent)
         self.frame_three.grid(row=0, column=0)
 
+        # Column labels
         self.product_name = Label(
             self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
         self.product_name.grid(row=0, column=0)
@@ -128,24 +159,30 @@ class issues_view(Frame):
         self.team_name = Label(
             self.list_frame, text="Team Name", font='Helvetica 10 bold', width=7, wraplength=50)
         self.team_name.grid(row=0, column=7)
+
         self.populate()
-        button_team = Button(self.frame_one, text="Edit Teams",
+
+        # Button declarations
+        self.button_team = Button(self.frame_one, text="Edit Teams",
                              command=lambda: controller.show_frame("GUI_team_edit"))
-        button_worker = Button(
+        self.button_worker = Button(
             self.frame_one, text="Edit Workers", command=lambda: controller.show_frame("GUI_worker_edit"))
-        button_product = Button(
+        self.button_product = Button(
             self.frame_one, text="Edit Products", command=lambda: controller.show_frame("GUI_product_edit"))
-        button_issue = Button(
+        self.button_issue = Button(
             self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
-        button_refresh = Button(
+        self.button_refresh = Button(
             self.frame_one, text='Refesh', command=self.populate)
-        button_team.grid(row=0, column=0, sticky='w')
-        button_worker.grid(row=0, column=1)
-        button_product.grid(row=0, column=2)
-        button_issue.grid(row=0, column=3)
-        button_refresh.grid(row=0, column=4)
+
+        # Button positioning
+        self.button_team.grid(row=0, column=0, sticky='w')
+        self.button_worker.grid(row=0, column=1)
+        self.button_product.grid(row=0, column=2)
+        self.button_issue.grid(row=0, column=3)
+        self.button_refresh.grid(row=0, column=4)
 
     def populate(self):
+        # Function to populate the list view
         data = relate_all()
         for index, dat in enumerate(data):
             Label(self.list_frame, text=dat[0]).grid(row=index + 1, column=0)
@@ -158,74 +195,94 @@ class issues_view(Frame):
             Label(self.list_frame, text=dat[7]).grid(row=index + 1, column=7)
 
     def Auxscrollfunction(self, event):
+        # Function for the scrolling of the canvas
         self.canvas.configure(scrollregion=self.canvas.bbox(
             'all'), width=1080, height=150)
 
 
 class GUI_team_edit(Frame):
+    # Team editing options view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
+        self.current_row = 0  # Set the current row count of the view
+
+        # Buttons declaration
         self.button_input = Button(
             self, text='Add teams', command=lambda: controller.show_frame('GUI_team_input'))
-        self.button_input.pack()
-
         self.button_delete = Button(
             self, text='Remove teams', command=lambda: controller.show_frame('GUI_team_remove'))
-        self.button_delete.pack()
-
         self.button_back = Button(
             self, text='Back', command=lambda: controller.show_frame('issues_view'))
+
+        # Buttons positioning
+        self.button_input.pack()
+        self.button_delete.pack()
         self.button_back.pack(side='left')
 
 
 class GUI_worker_edit(Frame):
+    # Worker editing options of the app
+
     def __init__(self, parent, controller):
+        # Function for initaializing the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
+
+        # Set the current row count of the view  # Set the current row count of the view
         self.current_row = 0
 
+        # Buttons declaration
         self.button_input = Button(
             self, text='Add workers', command=lambda: controller.show_frame('GUI_worker_input'))
-        self.button_input.pack()
-
         self.button_delete = Button(
             self, text='Remove workers', command=lambda: controller.show_frame('GUI_worker_remove'))
-        self.button_delete.pack()
-
         self.button_back = Button(
             self, text='Back', command=lambda: controller.show_frame('issues_view'))
+
+        # Buttons positioning
+        self.button_input.pack()
+        self.button_delete.pack()
         self.button_back.pack(side='left')
 
 
 class GUI_product_edit(Frame):
+    # Product editing options of the app
+
     def __init__(self, parent, controller):
+        # Function for initialzing the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
+        self.current_row = 0  # Set the current row count of the view
+
+        # Button declaration
         self.button_input = Button(
             self, text='Add products', command=lambda: controller.show_frame('GUI_product_input'))
-        self.button_input.pack()
-
         self.button_delete = Button(
             self, text='Remove products', command=lambda: controller.show_frame('GUI_product_remove'))
-        self.button_delete.pack()
-
         self.button_back = Button(
             self, text='Back', command=lambda: controller.show_frame('issues_view'))
+
+        # Button positioning
+        self.button_input.pack()
+        self.button_delete.pack()
         self.button_back.pack(side='left')
 
 
 class GUI_team_input(Frame):
+    # Team input view for the app
+
     def __init__(self, parent, controller):
+        # Function for initializing the components of the app
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
-        # Query Panel
+        self.current_row = 0  # Set the current row count of the view
+
         # Worker Name field
         self.team_label = Label(self, text="Team Name: ")
         self.team_label.grid(row=self.current_row, column=0)
@@ -239,26 +296,34 @@ class GUI_team_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Back',
+        # Button declaration
+        self.button = Button(self, text='Back',
                         command=lambda: controller.show_frame("GUI_team_edit"))
-        button_save = Button(self, text='Insert team', command=self.send_query)
+        self.button_save = Button(self, text='Insert team', command=self.send_query)
 
-        button_save.grid(row=self.current_row, column=0)
-        button.grid(row=self.current_row, column=1)
+        # Button positioning
+        self.button_save.grid(row=self.current_row, column=0)
+        self.button.grid(row=self.current_row, column=1)
         self.current_row += 1
 
     def send_query(self):
+        # Function to pass on the details for insertion of the team
         team_name = self.team_text.get()
         response = insert_team(team_name)
         self.querystatus.configure(text=response)
 
 
 class GUI_team_remove(Frame):
+    # Team removal view of the app
+
     def __init__(self, parent, controller):
+        # Function for initializing the components of the app
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
+        self.current_row = 0  # Set the current row count of the view
+
+        # Team selection menu
         self.team_label = Label(self, text="Team: ")
         self.team_label.grid(row=self.current_row, column=0)
         self.team_text = StringVar(self)
@@ -267,7 +332,7 @@ class GUI_team_remove(Frame):
             self, self.team_text, *self.get_options())
         self.team_options.grid(row=self.current_row, column=1)
         self.team_refresh = Button(
-            self, text='Refresh', command=self.update_team_option)
+            self, text='Refresh', command=self.update_team_option)  # Button for resfreshing the option menu
         self.team_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
@@ -276,19 +341,23 @@ class GUI_team_remove(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button_back = Button(self, text='Back',
+        # Button declaration
+        self.button_back = Button(self, text='Back',
                              command=lambda: controller.show_frame("GUI_team_edit"))
-        button_remove = Button(self, text='Remove team',
+        self.button_remove = Button(self, text='Remove team',
                                command=self.send_query)
 
-        button_back.grid(row=self.current_row, column=0)
-        button_remove.grid(row=self.current_row, column=1)
+        # Button positioning
+        self.button_back.grid(row=self.current_row, column=0)
+        self.button_remove.grid(row=self.current_row, column=1)
         self.current_row += 1
 
     def get_options(self):
+        # Function to get the names of the existing teans
         return team_names()
 
     def update_team_option(self):
+        # Function to update the option menu
         menu = self.team_options['menu']
         menu.delete(0, 'end')
         for value in team_names():
@@ -296,18 +365,22 @@ class GUI_team_remove(Frame):
                 label=value, command=lambda v=value: self.team_text.set(v))
 
     def send_query(self):
+        # Function to pass on the values for removal of the teams
         team_name = self.team_text.get()
         response = remove_team(team_name)
         self.querystatus.configure(text=response)
 
 
 class GUI_worker_input(Frame):
+    # Worker input view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the app
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
-        # Query Panel
+        self.current_row = 0  # Set the current row count of the view
+
         # Worker Name field
         self.worker_label = Label(self, text="Worker Name: ")
         self.worker_label.grid(row=self.current_row, column=0)
@@ -316,7 +389,7 @@ class GUI_worker_input(Frame):
         self.worker_entry.grid(row=self.current_row, column=1)
         self.current_row += 1
 
-        # Team ID field
+        # Team selection field
         self.team_label = Label(self, text="Team: ")
         self.team_label.grid(row=self.current_row, column=0)
         self.variable = StringVar(self)
@@ -325,7 +398,7 @@ class GUI_worker_input(Frame):
             self, self.variable, *self.get_options())
         self.team_options.grid(row=self.current_row, column=1)
         self.team_refresh = Button(
-            self, text='Refresh', command=self.update_team_option)
+            self, text='Refresh', command=self.update_team_option)  # Buttion to refresh the options for the menu
         self.team_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
@@ -334,19 +407,23 @@ class GUI_worker_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Back',
+        # Button declaration
+        self.button = Button(self, text='Back',
                         command=lambda: controller.show_frame("GUI_worker_edit"))
-        button_save = Button(self, text='Insert worker',
+        self.button_save = Button(self, text='Insert worker',
                              command=self.send_query)
 
-        button_save.grid(row=self.current_row, column=1)
-        button.grid(row=self.current_row, column=0)
+        # Button positioning
+        self.button_save.grid(row=self.current_row, column=1)
+        self.button.grid(row=self.current_row, column=0)
         self.current_row += 1
 
     def get_options(self):
+        # Function to get the team names
         return team_names()
 
     def update_team_option(self):
+        # Function to update the OptionMenu
         menu = self.team_options['menu']
         menu.delete(0, 'end')
         for value in team_names():
@@ -354,6 +431,7 @@ class GUI_worker_input(Frame):
                 label=value, command=lambda v=value: self.team_text.set(v))
 
     def send_query(self):
+        # Function to pass on the values for adding the workers
         worker_name = self.worker_text.get()
         team = self.variable.get()
         response = insert_worker(worker_name, team)
@@ -361,12 +439,16 @@ class GUI_worker_input(Frame):
 
 
 class GUI_worker_remove(Frame):
+    # Worker removal view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
-        # Team ID field
+        self.current_row = 0  # Set the current row count of the view
+
+        # Team selection menu
         self.team_label = Label(self, text="Team: ")
         self.team_label.grid(row=self.current_row, column=0)
         self.team_text = StringVar(self)
@@ -376,6 +458,7 @@ class GUI_worker_remove(Frame):
         self.team_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
+        # Worker selection menu
         self.worker_label = Label(self, text="Worker: ")
         self.worker_label.grid(row=self.current_row, column=0)
         self.worker_text = StringVar(self)
@@ -393,22 +476,27 @@ class GUI_worker_remove(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button_back = Button(self, text='Back',
+        # Button declaration
+        self.button_back = Button(self, text='Back',
                              command=lambda: controller.show_frame("GUI_worker_edit"))
-        button_remove = Button(self, text='Remove worker',
+        self.button_remove = Button(self, text='Remove worker',
                                command=self.send_query)
 
-        button_back.grid(row=self.current_row, column=0)
-        button_remove.grid(row=self.current_row, column=1)
+        # Button positioning
+        self.button_back.grid(row=self.current_row, column=0)
+        self.button_remove.grid(row=self.current_row, column=1)
         self.current_row += 1
 
     def get_team_options(self):
+        # Function to get the team names
         return team_names()
 
     def get_worker_options(self):
+        # Function to get the worker names
         return worker_names(self.team_text.get())
 
     def update_worker_option(self):
+        # Function to update the OptionMenu
         menu = self.worker_options['menu']
         menu.delete(0, 'end')
         for value in worker_names(self.team_text.get()):
@@ -416,6 +504,7 @@ class GUI_worker_remove(Frame):
                 label=value, command=lambda v=value: self.worker_text.set(v))
 
     def send_query(self):
+        # Function to pass on the values needed to remove the workers
         worker_name = self.worker_text.get()
         team_name = self.team_text.get()
         response = remove_worker(worker_name, team_name)
@@ -423,12 +512,15 @@ class GUI_worker_remove(Frame):
 
 
 class GUI_product_input(Frame):
+    # Product insertion view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
-        # Query Panel
+        self.current_row = 0  # Set the current row count of the view
+
         # Worker Name field
         self.product_label = Label(self, text="Product Name: ")
         self.product_label.grid(row=self.current_row, column=0)
@@ -442,27 +534,35 @@ class GUI_product_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button = Button(self, text='Back',
+        # Button declaration
+        self.button = Button(self, text='Back',
                         command=lambda: controller.show_frame("GUI_product_edit"))
-        button_save = Button(self, text='Insert product',
+        self.button_save = Button(self, text='Insert product',
                              command=self.send_query)
 
-        button_save.grid(row=self.current_row, column=0)
-        button.grid(row=self.current_row, column=1)
+        # Button postioning
+        self.button_save.grid(row=self.current_row, column=0)
+        self.button.grid(row=self.current_row, column=1)
         self.current_row += 1
 
     def send_query(self):
+        # Function to pass on the values needed to insert the product
         product_name = self.product_text.get()
         response = insert_product(product_name)
         self.querystatus.configure(text=response)
 
 
 class GUI_product_remove(Frame):
+    # Product removal view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the app
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
+        self.current_row = 0  # Set the current row count of the view
+
+        # Produt selection menu
         self.product_label = Label(self, text="Product: ")
         self.product_label.grid(row=self.current_row, column=0)
         self.product_text = StringVar(self)
@@ -480,19 +580,23 @@ class GUI_product_remove(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
-        button_back = Button(self, text='Back',
+        # Button declaration
+        self.button_back = Button(self, text='Back',
                              command=lambda: controller.show_frame("GUI_product_edit"))
-        button_remove = Button(self, text='Remove product',
+        self.button_remove = Button(self, text='Remove product',
                                command=self.send_query)
 
-        button_back.grid(row=self.current_row, column=0)
-        button_remove.grid(row=self.current_row, column=1)
+        # Button positioning
+        self.button_back.grid(row=self.current_row, column=0)
+        self.button_remove.grid(row=self.current_row, column=1)
         self.current_row += 1
 
     def get_options(self):
+        # Function to get the product names
         return product_names()
 
     def update_product_option(self):
+        # Function to update the OptionMenu
         menu = self.product_options['menu']
         menu.delete(0, 'end')
         for value in product_names():
@@ -500,19 +604,23 @@ class GUI_product_remove(Frame):
                 label=value, command=lambda v=value: self.product_text.set(v))
 
     def send_query(self):
+        # Function to pass on the values for product removal
         product_name = self.product_text.get()
         response = remove_product(product_name)
         self.querystatus.configure(text=response)
 
 
 class GUI_issue_input(Frame):
+    # Issue input view of the app
+
     def __init__(self, parent, controller):
+        # Function to initialize the components of the view
         Frame.__init__(self, parent)
         self.controller = controller
-        self.current_row = 0
 
-        # Query Panel
-        # Issue type field
+        self.current_row = 0  # Set the current row count of the view
+
+        # Issue type selection menu
         self.issue_label = Label(self, text="Issue Type: ")
         self.issue_label.grid(row=self.current_row, column=0)
         self.issue_options = ['Suggestion', 'Complaint', 'Request']
@@ -522,7 +630,7 @@ class GUI_issue_input(Frame):
         self.issue_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
-        # Team ID field
+        # Team selection menu
         self.team_label = Label(self, text="Team: ")
         self.team_label.grid(row=self.current_row, column=0)
         self.team_text = StringVar(self)
@@ -532,6 +640,7 @@ class GUI_issue_input(Frame):
         self.team_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
+        # Worker selection menu
         self.worker_label = Label(self, text="Team: ")
         self.worker_label.grid(row=self.current_row, column=0)
         self.worker_text = StringVar(self)
@@ -541,7 +650,7 @@ class GUI_issue_input(Frame):
         self.worker_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
-        # Product ID field
+        # Product selection menu
         self.product_label = Label(self, text="Product: ")
         self.product_label.grid(row=self.current_row, column=0)
         self.product_text = StringVar(self)
@@ -559,7 +668,7 @@ class GUI_issue_input(Frame):
         self.desc_entry.grid(row=self.current_row, column=1, sticky='we')
         self.current_row += 1
 
-        # Issue Priority field
+        # Issue Priority selection menu
         self.priority_label = Label(self, text="Issue priority: ")
         self.priority_label.grid(row=self.current_row, column=0)
         self.priority_text = StringVar(self)
@@ -570,7 +679,7 @@ class GUI_issue_input(Frame):
         self.priority_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
-        # Issue Severity field
+        # Issue Severity selection menu
         self.severity_label = Label(self, text="Issue Severity: ")
         self.severity_label.grid(row=self.current_row, column=0)
         self.severity_text = StringVar(self)
@@ -586,25 +695,34 @@ class GUI_issue_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
+        # Button declaration
         self.worker_refresh = Button(
             self, text='Refresh', command=self.update_options)
-        button = Button(self, text='Back',
+        self.button = Button(self, text='Back',
                         command=lambda: controller.show_frame("issues_view"))
-        button_save = Button(self, text='Insert issue',
+        self.button_save = Button(self, text='Insert issue',
                              command=self.send_query)
 
-        button_save.grid(row=self.current_row, column=0)
-        button.grid(row=self.current_row, column=1)
+        # Button positioning
+        self.button_save.grid(row=self.current_row, column=0)
+        self.button.grid(row=self.current_row, column=1)
         self.worker_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
     def get_team_options(self):
+        # Function to get the team names
         return team_names()
 
     def get_worker_options(self):
+        # Function to get the worker names according to the tean
         return worker_names(self.team_text.get())
 
+    def get_product_options(self):
+        # Function to get the product names
+        return product_names()
+
     def update_options(self):
+        # FUnction to update the OptionMenus
         menu = self.team_options['menu']
         menu.delete(0, 'end')
         for value in team_names():
@@ -623,10 +741,8 @@ class GUI_issue_input(Frame):
             menu.add_command(
                 label=value, command=lambda v=value: self.product_text.set(v))
 
-    def get_product_options(self):
-        return product_names()
-
     def send_query(self):
+        # Function to pass on the values required for issue insertion
         team = self.team_text.get()
         worker = self.worker_text.get()
         product = self.product_text.get()
@@ -640,6 +756,7 @@ class GUI_issue_input(Frame):
 
 
 def main():
+    # Main function of the app
     window = Ticket_Management_System()
     window.wm_title("Ticket Managemnt System")
     window.mainloop()
