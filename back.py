@@ -52,6 +52,26 @@ def insert_worker(worker_name, team):
         return str(e)
 
 
+def remove_worker(worker_name, team):
+    try:
+        con = pymysql.connect(user='root',
+                              db='tickets',
+                              charset='utf8mb4',
+                              cursorclass=pymysql.cursors.DictCursor)
+        cur = con.cursor()
+        cur.execute("SELECT * FROM team")
+        data = cur.fetchall()
+        teams = {}
+        for dic in data:
+            teams[dic['team_name']] = dic['id']
+        cur.execute("DELETE from worker WHERE worker_name=\"" + worker_name + "\" and team_id=" + str(teams[team]))
+        con.commit()
+        con.close()
+        return "Successfully removed \'" + worker_name + "\' from \'" + team + "\'"
+    except Exception as e:
+        return str(e)
+
+
 def insert_product(product_name):
     try:
         con = pymysql.connect(user='root',
@@ -123,6 +143,33 @@ def team_names():
         if data:
             for dic in data:
                 names.append(dic['team_name'])
+        else:
+            names = ['Placeholder']
+        con.commit()
+        con.close()
+        return names
+    except Exception as e:
+        raise Exception(str(e))
+
+
+def worker_names(team_name):
+    try:
+        con = pymysql.connect(user='root',
+                              db='tickets',
+                              charset='utf8mb4',
+                              cursorclass=pymysql.cursors.DictCursor)
+        cur = con.cursor()
+        cur.execute("SELECT * FROM team")
+        data = cur.fetchall()
+        teams = {}
+        for dic in data:
+            teams[dic['team_name']] = dic['id']
+        cur.execute("SELECT worker_name FROM worker WHERE team_id=" + str(teams[team_name]))
+        data = cur.fetchall()
+        names = []
+        if data:
+            for dic in data:
+                names.append(dic['worker_name'])
         else:
             names = ['Placeholder']
         con.commit()
