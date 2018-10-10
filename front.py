@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import font as tkFont
-from back import insert_team, remove_team, insert_worker, remove_worker, insert_product, remove_product, insert_issue, team_names, worker_names, product_names, relate_all, login_check
+from back import insert_team, remove_team, insert_worker, remove_worker, insert_product, \
+    remove_product, insert_issue, team_names, worker_names, product_names, \
+    relate_all, login_check
 
 
 class Ticket_Management_System(Tk):
@@ -17,8 +19,10 @@ class Ticket_Management_System(Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
+        self.classes = (login_view, issues_view, GUI_team_edit, GUI_team_input, GUI_team_remove, GUI_worker_edit,
+                        GUI_worker_input, GUI_worker_remove, GUI_product_edit, GUI_product_input, GUI_product_remove, GUI_issue_input)
         self.frames = {}
-        for F in (login_view, issues_view, GUI_team_edit, GUI_team_input, GUI_team_remove, GUI_worker_edit, GUI_worker_input, GUI_worker_remove, GUI_product_edit, GUI_product_input, GUI_product_remove, GUI_issue_input):
+        for F in self.classes:
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -133,7 +137,8 @@ class issues_view(Frame):
             self.frame_one, text="Edit Products", command=lambda: controller.show_frame("GUI_product_edit"))
         button_issue = Button(
             self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
-        button_refresh = Button(self.frame_one, text='Refesh', command= self.populate)
+        button_refresh = Button(
+            self.frame_one, text='Refesh', command=self.populate)
         button_team.grid(row=0, column=0, sticky='w')
         button_worker.grid(row=0, column=1)
         button_product.grid(row=0, column=2)
@@ -261,9 +266,12 @@ class GUI_team_remove(Frame):
         self.team_options = OptionMenu(
             self, self.team_text, *self.get_options())
         self.team_options.grid(row=self.current_row, column=1)
+        self.team_refresh = Button(
+            self, text='Refresh', command=self.update_team_option)
+        self.team_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
-         # Query status
+        # Query status
         self.querystatus = Label(self, text='')
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
@@ -279,6 +287,13 @@ class GUI_team_remove(Frame):
 
     def get_options(self):
         return team_names()
+
+    def update_team_option(self):
+        menu = self.team_options['menu']
+        menu.delete(0, 'end')
+        for value in team_names():
+            menu.add_command(
+                label=value, command=lambda v=value: self.team_text.set(v))
 
     def send_query(self):
         team_name = self.team_text.get()
@@ -309,6 +324,9 @@ class GUI_worker_input(Frame):
         self.team_options = OptionMenu(
             self, self.variable, *self.get_options())
         self.team_options.grid(row=self.current_row, column=1)
+        self.team_refresh = Button(
+            self, text='Refresh', command=self.update_team_option)
+        self.team_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
         # Query status
@@ -321,12 +339,19 @@ class GUI_worker_input(Frame):
         button_save = Button(self, text='Insert worker',
                              command=self.send_query)
 
-        button_save.grid(row=self.current_row, column=0)
-        button.grid(row=self.current_row, column=1)
+        button_save.grid(row=self.current_row, column=1)
+        button.grid(row=self.current_row, column=0)
         self.current_row += 1
 
     def get_options(self):
         return team_names()
+
+    def update_team_option(self):
+        menu = self.team_options['menu']
+        menu.delete(0, 'end')
+        for value in team_names():
+            menu.add_command(
+                label=value, command=lambda v=value: self.team_text.set(v))
 
     def send_query(self):
         worker_name = self.worker_text.get()
@@ -341,7 +366,7 @@ class GUI_worker_remove(Frame):
         self.controller = controller
         self.current_row = 0
 
-         # Team ID field
+        # Team ID field
         self.team_label = Label(self, text="Team: ")
         self.team_label.grid(row=self.current_row, column=0)
         self.team_text = StringVar(self)
@@ -351,18 +376,19 @@ class GUI_worker_remove(Frame):
         self.team_options.grid(row=self.current_row, column=1)
         self.current_row += 1
 
-        self.worker_label = Label(self, text="Team: ")
+        self.worker_label = Label(self, text="Worker: ")
         self.worker_label.grid(row=self.current_row, column=0)
         self.worker_text = StringVar(self)
         self.worker_text.set('Choose a worker')
         self.worker_options = OptionMenu(
             self, self.worker_text, *self.get_worker_options())
         self.worker_options.grid(row=self.current_row, column=1)
-        self.worker_refresh = Button(self, text='Refresh', command=self.update_worker_option)
+        self.worker_refresh = Button(
+            self, text='Refresh', command=self.update_worker_option)
         self.worker_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
-         # Query status
+        # Query status
         self.querystatus = Label(self, text='')
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
@@ -386,7 +412,8 @@ class GUI_worker_remove(Frame):
         menu = self.worker_options['menu']
         menu.delete(0, 'end')
         for value in worker_names(self.team_text.get()):
-            menu.add_command(label=value, command=lambda v=value: self.worker_text.set(v))
+            menu.add_command(
+                label=value, command=lambda v=value: self.worker_text.set(v))
 
     def send_query(self):
         worker_name = self.worker_text.get()
@@ -443,10 +470,12 @@ class GUI_product_remove(Frame):
         self.product_options = OptionMenu(
             self, self.product_text, *self.get_options())
         self.product_options.grid(row=self.current_row, column=1)
-        self.product_refresh = Button(self, text='Refres', command = self.update_product_option)
+        self.product_refresh = Button(
+            self, text='Refresh', command=self.update_product_option)
+        self.product_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
-         # Query status
+        # Query status
         self.querystatus = Label(self, text='')
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
@@ -467,7 +496,8 @@ class GUI_product_remove(Frame):
         menu = self.product_options['menu']
         menu.delete(0, 'end')
         for value in product_names():
-            menu.add_command(label=value, command=lambda v=value: self.product_text.set(v))
+            menu.add_command(
+                label=value, command=lambda v=value: self.product_text.set(v))
 
     def send_query(self):
         product_name = self.product_text.get()
@@ -509,8 +539,6 @@ class GUI_issue_input(Frame):
         self.worker_options = OptionMenu(
             self, self.worker_text, *self.get_worker_options())
         self.worker_options.grid(row=self.current_row, column=1)
-        self.worker_refresh = Button(self, text='Refresh', command=self.update_worker_option)
-        self.worker_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
         # Product ID field
@@ -558,6 +586,8 @@ class GUI_issue_input(Frame):
         self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
         self.current_row += 1
 
+        self.worker_refresh = Button(
+            self, text='Refresh', command=self.update_options)
         button = Button(self, text='Back',
                         command=lambda: controller.show_frame("issues_view"))
         button_save = Button(self, text='Insert issue',
@@ -565,6 +595,7 @@ class GUI_issue_input(Frame):
 
         button_save.grid(row=self.current_row, column=0)
         button.grid(row=self.current_row, column=1)
+        self.worker_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
     def get_team_options(self):
@@ -573,11 +604,24 @@ class GUI_issue_input(Frame):
     def get_worker_options(self):
         return worker_names(self.team_text.get())
 
-    def update_worker_option(self):
+    def update_options(self):
+        menu = self.team_options['menu']
+        menu.delete(0, 'end')
+        for value in team_names():
+            menu.add_command(
+                label=value, command=lambda v=value: self.team_text.set(v))
+
         menu = self.worker_options['menu']
         menu.delete(0, 'end')
         for value in worker_names(self.team_text.get()):
-            menu.add_command(label=value, command=lambda v=value: self.worker_text.set(v))
+            menu.add_command(
+                label=value, command=lambda v=value: self.worker_text.set(v))
+
+        menu = self.product_options['menu']
+        menu.delete(0, 'end')
+        for value in product_names():
+            menu.add_command(
+                label=value, command=lambda v=value: self.product_text.set(v))
 
     def get_product_options(self):
         return product_names()
@@ -590,7 +634,7 @@ class GUI_issue_input(Frame):
         issue_desc = self.desc_text.get()
         issue_priority = self.priority_text.get()
         issue_severity = self.severity_text.get()
-        response = insert_issue(team, worker,product, issue_type,
+        response = insert_issue(team, worker, product, issue_type,
                                 issue_desc, issue_priority, issue_severity)
         self.querystatus.configure(text=response)
 
