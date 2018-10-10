@@ -1,17 +1,13 @@
 # Ticket Management System
 
 ## Overview 
+
 This is a simple TkInter project written in python3 to create a viewable platform for the MySQL database. It allows addition and deletion to 
 the various tables present in the database.
 
 ## Packages required
-asn1crypto==0.24.0
-cffi==1.11.5
-cryptography==2.3.1
-idna==2.7
-pycparser==2.19
-PyMySQL==0.9.2
-six==1.11.0
+
+* PyMySQL==0.9.2
 
 ## Database structure
 The project consists of the following tables -
