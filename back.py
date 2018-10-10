@@ -2,13 +2,15 @@ import pymysql
 
 
 def insert_team(team_name):
+    # Function to insert the specified team
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4',
                               cursorclass=pymysql.cursors.DictCursor)
         cur = con.cursor()
-        cur.execute("INSERT INTO team(team_name) values(%s)", (team_name))
+        cur.execute("INSERT INTO team(team_name) values(%s)",
+                    (team_name))  # SQL query to insert team
         con.commit()
         con.close()
         return "Successfully added \'" + team_name + "\'"
@@ -17,12 +19,14 @@ def insert_team(team_name):
 
 
 def remove_team(team_name):
+    # Function to remove the specified team
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4',
                               cursorclass=pymysql.cursors.DictCursor)
         cur = con.cursor()
+        # SQL query to remove the specified team
         cur.execute("DELETE from team where team_name=\"" + team_name + "\"")
         con.commit()
         con.close()
@@ -32,6 +36,7 @@ def remove_team(team_name):
 
 
 def insert_worker(worker_name, team):
+    # Function to insert the specified worker with the specified team
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
@@ -44,7 +49,7 @@ def insert_worker(worker_name, team):
         for dic in data:
             teams[dic['team_name']] = dic['id']
         cur.execute("INSERT INTO worker(worker_name, team_id) values(%s, %s)",
-                    (worker_name, teams[team]))
+                    (worker_name, teams[team]))  # SQL query to insert the worker
         con.commit()
         con.close()
         return "Successfully added \'" + worker_name + "\' to \'" + team + "\'"
@@ -53,6 +58,7 @@ def insert_worker(worker_name, team):
 
 
 def remove_worker(worker_name, team):
+    # Function to remove the specified worker
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
@@ -64,7 +70,8 @@ def remove_worker(worker_name, team):
         teams = {}
         for dic in data:
             teams[dic['team_name']] = dic['id']
-        cur.execute("DELETE from worker WHERE worker_name=\"" + worker_name + "\" and team_id=" + str(teams[team]))
+        cur.execute("DELETE from worker WHERE worker_name=\"" + worker_name +
+                    "\" and team_id=" + str(teams[team]))  # SQL query to remove the worker
         con.commit()
         con.close()
         return "Successfully removed \'" + worker_name + "\' from \'" + team + "\'"
@@ -73,6 +80,7 @@ def remove_worker(worker_name, team):
 
 
 def insert_product(product_name):
+    # Function to insert the specified product
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
@@ -80,7 +88,7 @@ def insert_product(product_name):
                               cursorclass=pymysql.cursors.DictCursor)
         cur = con.cursor()
         cur.execute("INSERT INTO product(product_name) values(%s)",
-                    (product_name))
+                    (product_name))  # SQL query to insert the product
         con.commit()
         con.close()
         return "Successfully added \'" + product_name + "\'"
@@ -89,13 +97,15 @@ def insert_product(product_name):
 
 
 def remove_product(product_name):
+    # Function to remove the specified product
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4',
                               cursorclass=pymysql.cursors.DictCursor)
         cur = con.cursor()
-        cur.execute("DELETE from product where product_name=\"" + team_name + "\"")
+        cur.execute("DELETE from product where product_name=\"" +
+                    product_name + "\"")  # SQL query to remove the product
         con.commit()
         con.close()
         return "Successfully removed \'" + product_name + "\'"
@@ -104,6 +114,7 @@ def remove_product(product_name):
 
 
 def get_impact(issue_priority, issue_severity):
+    # Function to return the impact value based on priority and severity
     if issue_priority == 1:
         if issue_severity == 1 or issue_severity == 2:
             return 1
@@ -119,7 +130,8 @@ def get_impact(issue_priority, issue_severity):
 
 
 def insert_issue(team, worker, product, issue_type, issue_desc, issue_priority, issue_severity):
-    # try:
+    # Function to insert the issue with the related values
+    try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4',
@@ -142,15 +154,16 @@ def insert_issue(team, worker, product, issue_type, issue_desc, issue_priority, 
             workers[dic['worker_name']] = dic['id']
         issue_impact = get_impact(issue_priority, issue_severity)
         cur.execute("INSERT INTO issue(team_id, product_id, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (teams[team], products[product], issue_type, issue_desc, issue_priority, issue_severity, issue_impact, workers[worker]))
+                    (teams[team], products[product], issue_type, issue_desc, issue_priority, issue_severity, issue_impact, workers[worker]))  # SQL query to insert the issues
         con.commit()
         con.close()
         return "Successfully added issue of type \'" + issue_type + "\'"
-    # except Exception as e:
-    #     return str(e)
+    except Exception as e:
+        return str(e)
 
 
 def team_names():
+    # Function to get the team names
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
@@ -173,6 +186,7 @@ def team_names():
 
 
 def worker_names(team_name):
+    # Function to get the worker names
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
@@ -184,7 +198,8 @@ def worker_names(team_name):
         teams = {}
         for dic in data:
             teams[dic['team_name']] = dic['id']
-        cur.execute("SELECT worker_name FROM worker WHERE team_id=" + str(teams[team_name]))
+        cur.execute(
+            "SELECT worker_name FROM worker WHERE team_id=" + str(teams[team_name]))
         data = cur.fetchall()
         names = []
         if data:
@@ -200,6 +215,7 @@ def worker_names(team_name):
 
 
 def product_names():
+    # Function to get the product names
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
@@ -222,13 +238,14 @@ def product_names():
 
 
 def relate_all():
+    # Fucntion to provide the bsae view of the app
     try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4')
         cur = con.cursor()
         cur.execute("SELECT product_name, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_name," +
-                    " team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id AND worker.id = issue.worker_id;")
+                    " team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id AND worker.id = issue.worker_id;")  # SQL query to join the tables to get the necessary details
         data = cur.fetchall()
         con.close()
         return data
@@ -237,6 +254,7 @@ def relate_all():
 
 
 def login_check(username, password):
+    # Function to check the login details
     try:
         con = pymysql.connect(user='root',
                               db='tickets',

@@ -722,7 +722,7 @@ class GUI_issue_input(Frame):
         return product_names()
 
     def update_options(self):
-        # FUnction to update the OptionMenus
+        # Function to update the OptionMenus
         menu = self.team_options['menu']
         menu.delete(0, 'end')
         for value in team_names():
