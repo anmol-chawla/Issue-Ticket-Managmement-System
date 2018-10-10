@@ -18,7 +18,7 @@ class Ticket_Management_System(Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input, issues_view, login_view):
+        for F in (login_view, issues_view, GUI_team_input, GUI_worker_input, GUI_product_input, GUI_issue_input):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -30,6 +30,130 @@ class Ticket_Management_System(Tk):
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
+
+
+
+class login_view(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        self.current_row = 0
+
+        self.username_label = Label(self, text='Username: ')
+        self.username_label.grid(row=self.current_row, column=0)
+        self.username_text = StringVar()
+        self.username_entry = Entry(
+            self, textvariable=self.username_text, width=60)
+        self.username_entry.grid(row=self.current_row, column=1, sticky='we')
+        self.current_row += 1
+
+        self.password_label = Label(self, text='Password: ')
+        self.password_label.grid(row=self.current_row, column=0)
+        self.password_text = StringVar()
+        self.password_entry = Entry(
+            self, textvariable=self.password_text, show='*', width=60)
+        self.password_entry.grid(row=self.current_row, column=1, sticky='we')
+        self.current_row += 1
+
+        # Query status
+        self.querystatus = Label(self, text='')
+        self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
+        self.current_row += 1
+
+        button = Button(
+            self, text="Login", command=lambda: self.login())
+        button.grid(row=self.current_row, column=0)
+        self.current_row += 1
+
+    def login(self):
+        response = login_check(self.username_text.get(),
+                               self.password_text.get())
+        if response:
+            self.controller.show_frame('issues_view')
+        else:
+            self.querystatus.configure(text='Incorrect login')
+
+
+class issues_view(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        self.initUI(parent, controller)
+
+    def initUI(self, parent, controller):
+        self.frame_one = Frame(self, parent)
+        self.frame_one.grid(row=0, column=0)
+
+        self.frame_two = Frame(self, parent)
+        self.frame_two.grid(row=1, column=0)
+
+        self.canvas = Canvas(self.frame_two)
+        self.list_frame = Frame(self.canvas)
+        self.scrolllib = Scrollbar(
+            parent, orient='vertical', command=self.canvas.yview)
+        self.scrolllib.grid(row=0, column=1, sticky='nsew')
+        self.canvas['yscrollcommand'] = self.scrolllib.set
+
+        self.canvas.create_window((0, 0), window=self.list_frame, anchor='nw')
+        self.list_frame.bind('<Configure>', self.Auxscrollfunction)
+
+        self.canvas.pack(side='left')
+        self.frame_three = Frame(parent)
+        self.frame_three.grid(row=0, column=0)
+
+        self.product_name = Label(
+            self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
+        self.product_name.grid(row=0, column=0)
+        self.issue_type = Label(self.list_frame, text='Issue Type',
+                                font='Helvetica 10 bold', width=20, wraplength=50)
+        self.issue_type.grid(row=0, column=1)
+        self.issue_description = Label(
+            self.list_frame, text='Issue Description', font='Helvetica 10 bold', width=50, wraplength=75)
+        self.issue_description.grid(row=0, column=2)
+        self.issue_priority = Label(
+            self.list_frame, text='Issue Priority', font='Helvetica 10 bold', width=8, wraplength=50)
+        self.issue_priority.grid(row=0, column=3)
+        self.issue_severity = Label(
+            self.list_frame, text='Issue Severity', font='Helvetica 10 bold', width=8, wraplength=70)
+        self.issue_severity.grid(row=0, column=4)
+        self.issue_impact = Label(
+            self.list_frame, text='Issue Impact', font='Helvetica 10 bold', width=8, wraplength=50)
+        self.issue_impact.grid(row=0, column=5)
+        self.worker_name = Label(
+            self.list_frame, text='Worker Name', font='Helvetica 10 bold', width=6, wraplength=50)
+        self.worker_name.grid(row=0, column=6)
+        self.team_name = Label(
+            self.list_frame, text="Team Name", font='Helvetica 10 bold', width=7, wraplength=50)
+        self.team_name.grid(row=0, column=7)
+        self.populate()
+        button_team = Button(self.frame_one, text="Add Teams",
+                             command=lambda: controller.show_frame("GUI_team_input"))
+        button_worker = Button(
+            self.frame_one, text="Add Workers", command=lambda: controller.show_frame("GUI_worker_input"))
+        button_product = Button(
+            self.frame_one, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
+        button_issue = Button(
+            self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
+        button_team.grid(row=0, column=0, sticky='w')
+        button_worker.grid(row=0, column=1)
+        button_product.grid(row=0, column=2)
+        button_issue.grid(row=0, column=3)
+
+    def populate(self):
+        data = relate_all()
+        for index, dat in enumerate(data):
+            Label(self.list_frame, text=dat[0]).grid(row=index + 1, column=0)
+            Label(self.list_frame, text=dat[1]).grid(row=index + 1, column=1)
+            Label(self.list_frame, text=dat[2]).grid(row=index + 1, column=2)
+            Label(self.list_frame, text=dat[3]).grid(row=index + 1, column=3)
+            Label(self.list_frame, text=dat[4]).grid(row=index + 1, column=4)
+            Label(self.list_frame, text=dat[5]).grid(row=index + 1, column=5)
+            Label(self.list_frame, text=dat[6]).grid(row=index + 1, column=6)
+            Label(self.list_frame, text=dat[7]).grid(row=index + 1, column=7)
+
+    def Auxscrollfunction(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox(
+            'all'), width=1080, height=150)
 
 
 class GUI_team_input(Frame):
@@ -247,129 +371,6 @@ class GUI_issue_input(Frame):
         response = insert_issue(team, product, issue_type,
                                 issue_desc, issue_priority, issue_severity)
         self.querystatus.configure(text=response)
-
-
-class issues_view(Frame):
-    def __init__(self, parent, controller):
-        Frame.__init__(self, parent)
-        self.controller = controller
-        self.initUI(parent, controller)
-
-    def initUI(self, parent, controller):
-        self.frame_one = Frame(self, parent)
-        self.frame_one.grid(row=0, column=0)
-
-        self.frame_two = Frame(self, parent)
-        self.frame_two.grid(row=1, column=0)
-
-        self.canvas = Canvas(self.frame_two)
-        self.list_frame = Frame(self.canvas)
-        self.scrolllib = Scrollbar(
-            parent, orient='vertical', command=self.canvas.yview)
-        self.scrolllib.grid(row=0, column=1, sticky='nsew')
-        self.canvas['yscrollcommand'] = self.scrolllib.set
-
-        self.canvas.create_window((0, 0), window=self.list_frame, anchor='nw')
-        self.list_frame.bind('<Configure>', self.Auxscrollfunction)
-
-        self.canvas.pack(side='left')
-        self.frame_three = Frame(parent)
-        self.frame_three.grid(row=0, column=0)
-
-        self.product_name = Label(
-            self.list_frame, text='Product Name', font='Helvetica 10 bold', width=20, wraplength=50)
-        self.product_name.grid(row=0, column=0)
-        self.issue_type = Label(self.list_frame, text='Issue Type',
-                                font='Helvetica 10 bold', width=20, wraplength=50)
-        self.issue_type.grid(row=0, column=1)
-        self.issue_description = Label(
-            self.list_frame, text='Issue Description', font='Helvetica 10 bold', width=50, wraplength=75)
-        self.issue_description.grid(row=0, column=2)
-        self.issue_priority = Label(
-            self.list_frame, text='Issue Priority', font='Helvetica 10 bold', width=8, wraplength=50)
-        self.issue_priority.grid(row=0, column=3)
-        self.issue_severity = Label(
-            self.list_frame, text='Issue Severity', font='Helvetica 10 bold', width=8, wraplength=70)
-        self.issue_severity.grid(row=0, column=4)
-        self.issue_impact = Label(
-            self.list_frame, text='Issue Impact', font='Helvetica 10 bold', width=8, wraplength=50)
-        self.issue_impact.grid(row=0, column=5)
-        self.worker_name = Label(
-            self.list_frame, text='Worker Name', font='Helvetica 10 bold', width=6, wraplength=50)
-        self.worker_name.grid(row=0, column=6)
-        self.team_name = Label(
-            self.list_frame, text="Team Name", font='Helvetica 10 bold', width=7, wraplength=50)
-        self.team_name.grid(row=0, column=7)
-        self.populate()
-        button_team = Button(self.frame_one, text="Add Teams",
-                             command=lambda: controller.show_frame("GUI_team_input"))
-        button_worker = Button(
-            self.frame_one, text="Add Workers", command=lambda: controller.show_frame("GUI_worker_input"))
-        button_product = Button(
-            self.frame_one, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
-        button_issue = Button(
-            self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
-        button_team.grid(row=0, column=0, sticky='w')
-        button_worker.grid(row=0, column=1)
-        button_product.grid(row=0, column=2)
-        button_issue.grid(row=0, column=3)
-
-    def populate(self):
-        data = relate_all()
-        for index, dat in enumerate(data):
-            Label(self.list_frame, text=dat[0]).grid(row=index + 1, column=0)
-            Label(self.list_frame, text=dat[1]).grid(row=index + 1, column=1)
-            Label(self.list_frame, text=dat[2]).grid(row=index + 1, column=2)
-            Label(self.list_frame, text=dat[3]).grid(row=index + 1, column=3)
-            Label(self.list_frame, text=dat[4]).grid(row=index + 1, column=4)
-            Label(self.list_frame, text=dat[5]).grid(row=index + 1, column=5)
-            Label(self.list_frame, text=dat[6]).grid(row=index + 1, column=6)
-            Label(self.list_frame, text=dat[7]).grid(row=index + 1, column=7)
-
-    def Auxscrollfunction(self, event):
-        self.canvas.configure(scrollregion=self.canvas.bbox(
-            'all'), width=1080, height=150)
-
-
-class login_view(Frame):
-    def __init__(self, parent, controller):
-        Frame.__init__(self, parent)
-        self.controller = controller
-        self.current_row = 0
-
-        self.username_label = Label(self, text='Username: ')
-        self.username_label.grid(row=self.current_row, column=0)
-        self.username_text = StringVar()
-        self.username_entry = Entry(
-            self, textvariable=self.username_text, width=60)
-        self.username_entry.grid(row=self.current_row, column=1, sticky='we')
-        self.current_row += 1
-
-        self.password_label = Label(self, text='Password: ')
-        self.password_label.grid(row=self.current_row, column=0)
-        self.password_text = StringVar()
-        self.password_entry = Entry(
-            self, textvariable=self.password_text, show='*', width=60)
-        self.password_entry.grid(row=self.current_row, column=1, sticky='we')
-        self.current_row += 1
-
-        # Query status
-        self.querystatus = Label(self, text='')
-        self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
-        self.current_row += 1
-
-        button = Button(
-            self, text="Login", command=lambda: self.login())
-        button.grid(row=self.current_row, column=0)
-        self.current_row += 1
-
-    def login(self):
-        response = login_check(self.username_text.get(),
-                               self.password_text.get())
-        if response:
-            self.controller.show_frame('issues_view')
-        else:
-            self.querystatus.configure(text='Incorrect login')
 
 
 def main():
