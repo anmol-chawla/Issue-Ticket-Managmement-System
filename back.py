@@ -88,6 +88,21 @@ def insert_product(product_name):
         return str(e)
 
 
+def remove_product(product_name):
+    try:
+        con = pymysql.connect(user='root',
+                              db='tickets',
+                              charset='utf8mb4',
+                              cursorclass=pymysql.cursors.DictCursor)
+        cur = con.cursor()
+        cur.execute("DELETE from product where product_name=\"" + team_name + "\"")
+        con.commit()
+        con.close()
+        return "Successfully removed \'" + product_name + "\'"
+    except Exception as e:
+        return str(e)
+
+
 def get_impact(issue_priority, issue_severity):
     if issue_priority == 1:
         if issue_severity == 1 or issue_severity == 2:

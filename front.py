@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import font as tkFont
-from back import insert_team, remove_team, insert_worker, remove_worker, insert_product, insert_issue, team_names, worker_names, product_names, relate_all, login_check
+from back import insert_team, remove_team, insert_worker, remove_worker, insert_product, remove_product, insert_issue, team_names, worker_names, product_names, relate_all, login_check
 
 
 class Ticket_Management_System(Tk):
@@ -18,7 +18,7 @@ class Ticket_Management_System(Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (login_view, issues_view, GUI_team_edit, GUI_team_input, GUI_team_remove, GUI_worker_edit, GUI_worker_input, GUI_worker_remove, GUI_product_input, GUI_issue_input):
+        for F in (login_view, issues_view, GUI_team_edit, GUI_team_input, GUI_team_remove, GUI_worker_edit, GUI_worker_input, GUI_worker_remove, GUI_product_edit, GUI_product_input, GUI_product_remove, GUI_issue_input):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -130,7 +130,7 @@ class issues_view(Frame):
         button_worker = Button(
             self.frame_one, text="Edit Workers", command=lambda: controller.show_frame("GUI_worker_edit"))
         button_product = Button(
-            self.frame_one, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
+            self.frame_one, text="Edit Products", command=lambda: controller.show_frame("GUI_product_edit"))
         button_issue = Button(
             self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
         button_refresh = Button(self.frame_one, text='Refesh', command= self.populate)
@@ -188,6 +188,25 @@ class GUI_worker_edit(Frame):
 
         self.button_delete = Button(
             self, text='Remove workers', command=lambda: controller.show_frame('GUI_worker_remove'))
+        self.button_delete.pack()
+
+        self.button_back = Button(
+            self, text='Back', command=lambda: controller.show_frame('issues_view'))
+        self.button_back.pack(side='left')
+
+
+class GUI_product_edit(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        self.current_row = 0
+
+        self.button_input = Button(
+            self, text='Add products', command=lambda: controller.show_frame('GUI_product_input'))
+        self.button_input.pack()
+
+        self.button_delete = Button(
+            self, text='Remove products', command=lambda: controller.show_frame('GUI_product_remove'))
         self.button_delete.pack()
 
         self.button_back = Button(
@@ -397,7 +416,7 @@ class GUI_product_input(Frame):
         self.current_row += 1
 
         button = Button(self, text='Back',
-                        command=lambda: controller.show_frame("issues_view"))
+                        command=lambda: controller.show_frame("GUI_product_edit"))
         button_save = Button(self, text='Insert product',
                              command=self.send_query)
 
@@ -408,6 +427,51 @@ class GUI_product_input(Frame):
     def send_query(self):
         product_name = self.product_text.get()
         response = insert_product(product_name)
+        self.querystatus.configure(text=response)
+
+
+class GUI_product_remove(Frame):
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        self.current_row = 0
+
+        self.product_label = Label(self, text="Product: ")
+        self.product_label.grid(row=self.current_row, column=0)
+        self.product_text = StringVar(self)
+        self.product_text.set('Choose a product')
+        self.product_options = OptionMenu(
+            self, self.product_text, *self.get_options())
+        self.product_options.grid(row=self.current_row, column=1)
+        self.product_refresh = Button(self, text='Refres', command = self.update_product_option)
+        self.current_row += 1
+
+         # Query status
+        self.querystatus = Label(self, text='')
+        self.querystatus.grid(row=self.current_row, column=0, columnspan=2)
+        self.current_row += 1
+
+        button_back = Button(self, text='Back',
+                             command=lambda: controller.show_frame("GUI_product_edit"))
+        button_remove = Button(self, text='Remove product',
+                               command=self.send_query)
+
+        button_back.grid(row=self.current_row, column=0)
+        button_remove.grid(row=self.current_row, column=1)
+        self.current_row += 1
+
+    def get_options(self):
+        return product_names()
+
+    def update_product_option(self):
+        menu = self.product_options['menu']
+        menu.delete(0, 'end')
+        for value in product_names():
+            menu.add_command(label=value, command=lambda v=value: self.product_text.set(v))
+
+    def send_query(self):
+        product_name = self.product_text.get()
+        response = remove_product(product_name)
         self.querystatus.configure(text=response)
 
 
