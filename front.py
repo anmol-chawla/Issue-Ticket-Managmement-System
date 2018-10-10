@@ -25,7 +25,7 @@ class Ticket_Management_System(Tk):
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("issues_view")
+        self.show_frame("login_view")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -133,10 +133,12 @@ class issues_view(Frame):
             self.frame_one, text="Add Products", command=lambda: controller.show_frame("GUI_product_input"))
         button_issue = Button(
             self.frame_one, text="Add Issues", command=lambda: controller.show_frame("GUI_issue_input"))
+        button_refresh = Button(self.frame_one, text='Refesh', command= self.populate)
         button_team.grid(row=0, column=0, sticky='w')
         button_worker.grid(row=0, column=1)
         button_product.grid(row=0, column=2)
         button_issue.grid(row=0, column=3)
+        button_refresh.grid(row=0, column=4)
 
     def populate(self):
         data = relate_all()
@@ -171,7 +173,7 @@ class GUI_team_edit(Frame):
 
         self.button_back = Button(
             self, text='Back', command=lambda: controller.show_frame('issues_view'))
-        self.button_back.pack()
+        self.button_back.pack(side='left')
 
 
 class GUI_worker_edit(Frame):
@@ -190,7 +192,7 @@ class GUI_worker_edit(Frame):
 
         self.button_back = Button(
             self, text='Back', command=lambda: controller.show_frame('issues_view'))
-        self.button_back.pack()
+        self.button_back.pack(side='left')
 
 
 class GUI_team_input(Frame):
@@ -430,10 +432,21 @@ class GUI_issue_input(Frame):
         self.team_label = Label(self, text="Team: ")
         self.team_label.grid(row=self.current_row, column=0)
         self.team_text = StringVar(self)
-        self.team_text.set('Choose a team')
+        self.team_text.set(self.get_team_options()[0])
         self.team_options = OptionMenu(
             self, self.team_text, *self.get_team_options())
         self.team_options.grid(row=self.current_row, column=1)
+        self.current_row += 1
+
+        self.worker_label = Label(self, text="Team: ")
+        self.worker_label.grid(row=self.current_row, column=0)
+        self.worker_text = StringVar(self)
+        self.worker_text.set('Choose a worker')
+        self.worker_options = OptionMenu(
+            self, self.worker_text, *self.get_worker_options())
+        self.worker_options.grid(row=self.current_row, column=1)
+        self.worker_refresh = Button(self, text='Refresh', command=self.update_worker_option)
+        self.worker_refresh.grid(row=self.current_row, column=2)
         self.current_row += 1
 
         # Product ID field
@@ -493,17 +506,27 @@ class GUI_issue_input(Frame):
     def get_team_options(self):
         return team_names()
 
+    def get_worker_options(self):
+        return worker_names(self.team_text.get())
+
+    def update_worker_option(self):
+        menu = self.worker_options['menu']
+        menu.delete(0, 'end')
+        for value in worker_names(self.team_text.get()):
+            menu.add_command(label=value, command=lambda v=value: self.worker_text.set(v))
+
     def get_product_options(self):
         return product_names()
 
     def send_query(self):
         team = self.team_text.get()
+        worker = self.worker_text.get()
         product = self.product_text.get()
         issue_type = self.issue_text.get()
         issue_desc = self.desc_text.get()
         issue_priority = self.priority_text.get()
         issue_severity = self.severity_text.get()
-        response = insert_issue(team, product, issue_type,
+        response = insert_issue(team, worker,product, issue_type,
                                 issue_desc, issue_priority, issue_severity)
         self.querystatus.configure(text=response)
 

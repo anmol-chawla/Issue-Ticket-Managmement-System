@@ -103,8 +103,8 @@ def get_impact(issue_priority, issue_severity):
         return 3
 
 
-def insert_issue(team, product, issue_type, issue_desc, issue_priority, issue_severity):
-    try:
+def insert_issue(team, worker, product, issue_type, issue_desc, issue_priority, issue_severity):
+    # try:
         con = pymysql.connect(user='root',
                               db='tickets',
                               charset='utf8mb4',
@@ -120,14 +120,19 @@ def insert_issue(team, product, issue_type, issue_desc, issue_priority, issue_se
         products = {}
         for dic in data:
             products[dic['product_name']] = dic['id']
+        cur.execute("SELECT id, worker_name FROM worker")
+        data = cur.fetchall()
+        workers = {}
+        for dic in data:
+            workers[dic['worker_name']] = dic['id']
         issue_impact = get_impact(issue_priority, issue_severity)
-        cur.execute("INSERT INTO issue(team_id, product_id, issue_type, issue_description, issue_priority, issue_severity, issue_impact) values(%s, %s, %s, %s, %s, %s, %s)",
-                    (teams[team], products[product], issue_type, issue_desc, issue_priority, issue_severity, issue_impact))
+        cur.execute("INSERT INTO issue(team_id, product_id, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_id) values(%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (teams[team], products[product], issue_type, issue_desc, issue_priority, issue_severity, issue_impact, workers[worker]))
         con.commit()
         con.close()
         return "Successfully added issue of type \'" + issue_type + "\'"
-    except Exception as e:
-        return str(e)
+    # except Exception as e:
+    #     return str(e)
 
 
 def team_names():
@@ -208,7 +213,7 @@ def relate_all():
                               charset='utf8mb4')
         cur = con.cursor()
         cur.execute("SELECT product_name, issue_type, issue_description, issue_priority, issue_severity, issue_impact, worker_name," +
-                    " team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id;")
+                    " team_name FROM team, worker, issue, product WHERE team.id = issue.team_id AND product.id = issue.product_id AND worker.id = issue.worker_id;")
         data = cur.fetchall()
         con.close()
         return data
